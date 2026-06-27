@@ -1,0 +1,19 @@
+{
+  "name": "wasla-platform",
+  "version": "1.0.0",
+  "description": "WASLA — AI-powered industrial MRO parts marketplace for Saudi Arabia. Full-stack, server-ready.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "test": "node test/e2e.js && node test/security.js",
+    "seed": "node src/seed.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["marketplace", "mro", "saudi", "rfq", "escrow", "b2b"],
+  "license": "UNLICENSED",
+  "private": true
+}

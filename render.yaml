@@ -1,0 +1,83 @@
+# ============================================================
+# WASLA / وصلة — Render Blueprint (Infrastructure as Code)
+# نشر بضغطة واحدة: New > Blueprint في لوحة Render، اختر الريبو، Deploy.
+# ============================================================
+#
+# ملاحظة مهمة / IMPORTANT:
+#   القرص الدائم (للحفاظ على البيانات) يتطلب خطة مدفوعة على Render.
+#   The persistent disk that keeps your data requires a PAID plan.
+#
+#   • للتجربة المجانية: استخدم plan: free واحذف قسم disk + احذف DATA_DIR.
+#     (تنبيه: البيانات تنمسح مع كل إعادة نشر على الخطة المجانية)
+#   • للتشغيل الحقيقي: أبقِ plan: starter مع disk (البيانات تبقى دائمة).
+#
+# بعد النشر يظهر رابط بالشكل: https://wasla.onrender.com
+# ============================================================
+
+services:
+  - type: web
+    name: wasla
+    runtime: node
+    plan: starter            # غيّرها إلى free لتجربة مجانية (واحذف disk + DATA_DIR أدناه)
+    region: frankfurt        # أقرب منطقة للسعودية على Render
+    branch: main
+    buildCommand: ""         # المنصة بدون تبعيات — لا حاجة لـ npm install
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+    # قرص دائم لتخزين قاعدة البيانات (JSON datastore)
+    disk:
+      name: wasla-data
+      mountPath: /data
+      sizeGB: 1
+
+    envVars:
+      # مكان حفظ البيانات — لازم يطابق mountPath أعلاه
+      - key: DATA_DIR
+        value: /data
+
+      # مفتاح الأمان — Render يولّده تلقائياً (256-bit)
+      - key: JWT_SECRET
+        generateValue: true
+
+      # Render يحدد المنفذ تلقائياً؛ نتركه للنظام
+      - key: NODE_ENV
+        value: production
+
+      # ---- الإعدادات التجارية (اختياري — لها قيم افتراضية) ----
+      - key: VAT_RATE
+        value: "0.15"
+      - key: COMMISSION_STANDARD
+        value: "0.05"
+      - key: COMMISSION_VERIFIED
+        value: "0.035"
+
+      # ---- وضع التشغيل: تجريبي الآن، فعّل الحقيقي لاحقاً ----
+      # المدفوعات: simulated الآن. للتفعيل غيّرها لـ moyasar وأدخل المفاتيح.
+      - key: PAYMENTS_MODE
+        value: simulated
+      - key: MOYASAR_SECRET_KEY
+        sync: false           # يطلبه Render منك بأمان عند النشر (اتركه فارغاً الآن)
+      - key: MOYASAR_PUBLISHABLE_KEY
+        sync: false
+
+      # التحقق من المورّد: manual الآن. للتفعيل غيّرها لـ wathq أو hybrid.
+      - key: VERIFICATION_MODE
+        value: manual
+      - key: WATHQ_API_KEY
+        sync: false
+
+      # الرسائل: console الآن (تطبع الرمز في السجل). للتفعيل: unifonic.
+      - key: SMS_MODE
+        value: console
+      - key: UNIFONIC_APPSID
+        sync: false
+
+      # واتساب للأعمال (اختياري)
+      - key: WHATSAPP_BUSINESS_NUMBER
+        sync: false
+
+      # الفوترة: local (Phase-1 QR) — كافٍ للإطلاق
+      - key: ZATCA_MODE
+        value: local
